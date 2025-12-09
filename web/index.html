@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- META -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="DeltaOdds - Professional Polymarket orderbook data API for quantitative research, backtesting, and market analysis">
+    <meta name="keywords" content="polymarket data, orderbook data, prediction markets, market data API, quantitative research">
+    <meta name="author" content="DeltaOdds">
+    <!-- PAGE TITLE -->
+    <title>DeltaOdds - Professional Polymarket Data API</title>
+    <!-- FAVICON ICON -->
+    <link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon" />
+    <!-- ALL GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+    <!-- BOOTSTRAP CSS -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <!-- FONT AWESOME CSS -->
+    <link rel="stylesheet" href="assets/fonts/remixicon.css" />
+    <!-- MAGNIFIC CSS -->
+    <link rel="stylesheet" href="assets/css/magnific-popup.css">
+    <!-- NICE SELECT CSS -->
+    <link rel="stylesheet" href="assets/css/nice-select.min.css" />
+    <!-- ANIMATE CSS -->
+    <link rel="stylesheet" href="assets/css/animate.min.css" />
+    <!-- SLICK CSS -->
+    <link rel="stylesheet" href="assets/css/slick.min.css" />
+    <!-- SPACING CSS -->
+    <link rel="stylesheet" href="assets/css/spacing.css" />
+    <!-- MAIN STYLE CSS -->
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <!-- RESPONSIVE CSS -->
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <style>
+        /* Dark Theme Global Styles */
+        body {
+            background: #0a0a0a;
+            color: #e0e0e0;
+        }
+
+        .main-header {
+            background: rgba(10, 10, 10, 0.95);
+            border-bottom: 1px solid #1f1f1f;
+        }
+
+        .navigation li a {
+            color: #e0e0e0 !important;
+        }
+
+        .navigation li a:hover {
+            color: #4a9eff !important;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: #ffffff;
+        }
+
+        p {
+            color: #b0b0b0;
+        }
+
+        .main-bg {
+            background: #0a0a0a;
+        }
+
+        .code-example {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 32px 0;
+            overflow-x: auto;
+        }
+        .code-example pre {
+            margin: 0;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code-example .keyword { color: #569cd6; }
+        .code-example .string { color: #ce9178; }
+        .code-example .function { color: #dcdcaa; }
+        .code-example .comment { color: #6a9955; font-style: italic; }
+        .code-example .number { color: #b5cea8; }
+
+        .pricing-card {
+            background: #151515;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            border-color: #4a9eff;
+        }
+        .pricing-card.featured {
+            border: 2px solid #4a9eff;
+            position: relative;
+            background: #1a1a1a;
+        }
+        .pricing-badge {
+            position: absolute;
+            top: -15px;
+            right: 30px;
+            background: linear-gradient(135deg, #4a9eff 0%, #3a7fd5 100%);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .price {
+            font-size: 48px;
+            font-weight: 700;
+            margin: 20px 0;
+            color: #ffffff;
+        }
+        .price-period {
+            font-size: 16px;
+            color: #888;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+        }
+        .feature-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #2a2a2a;
+            color: #b0b0b0;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .feature-list i {
+            color: #4a9eff;
+            margin-right: 12px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 50px 0;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 30px;
+            background: #151515;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .stat-box:hover {
+            transform: translateY(-5px);
+            border-color: #4a9eff;
+        }
+        .stat-number {
+            font-size: 42px;
+            font-weight: 700;
+            color: #4a9eff;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #888;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+
+        .service-item {
+            background: #151515;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 30px;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .service-item:hover {
+            transform: translateY(-5px);
+            border-color: #4a9eff;
+        }
+
+        .service-item i {
+            color: #4a9eff;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .service-item h4 {
+            color: #ffffff;
+            margin-bottom: 15px;
+        }
+
+        .service-item p {
+            color: #b0b0b0;
+        }
+
+        .theme-btn {
+            background: linear-gradient(135deg, #4a9eff 0%, #3a7fd5 100%);
+            color: #fff !important;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .theme-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 158, 255, 0.3);
+        }
+
+        .main-footer {
+            background: #0a0a0a;
+            border-top: 1px solid #1f1f1f;
+        }
+
+        .copyright-text p {
+            color: #888;
+        }
+
+        .footer-links a {
+            color: #888 !important;
+        }
+
+        .footer-links a:hover {
+            color: #4a9eff !important;
+        }
+
+        .api-section-dark {
+            background: #0f0f0f !important;
+            padding: 100px 0;
+        }
+
+        .endpoints-box {
+            background: #151515;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .endpoints-box h4 {
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .endpoints-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0 0 0;
+        }
+
+        .endpoints-box li {
+            padding: 12px 0;
+            border-bottom: 1px solid #2a2a2a;
+            color: #b0b0b0;
+        }
+
+        .endpoints-box li:last-child {
+            border-bottom: none;
+        }
+
+        .endpoints-box strong {
+            color: #4a9eff;
+        }
+
+        .call-to-action-area {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            padding: 100px 0;
+        }
+
+        .progress-wrap {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+        }
+
+        .logo img {
+            max-height: 50px;
+            width: auto;
+        }
+
+        .mobile-logo img {
+            max-height: 40px;
+            width: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- START MAGIC CURSOR AND BALL AREA-->
+    <div id="magic-cursor">
+        <div id="ball"></div>
+    </div>
+    <div id="magic-cursor">
+        <div id="ball"></div>
+    </div>
+    <!-- / END MAGIC CURSOR AND BALL AREA-->
+    <!-- START MENU DESIGN AREA -->
+    <header class="main-header">
+        <div class="header-upper">
+            <div class="container">
+                <div class="header-inner d-flex align-items-center">
+                    <!-- START LOGO DESIGN AREA -->
+                    <div class="logo-outer">
+                        <div class="logo">
+                            <a href="index.html"><img src="assets/images/logos/logo.png" alt="DeltaOdds"></a>
+                        </div>
+                    </div>
+                    <!-- / END LOGO DESIGN AREA -->
+                    <!-- START NAV DESIGN AREA -->
+                    <div class="nav-outer clearfix mx-auto">
+                        <nav class="main-menu navbar-expand-lg">
+                            <div class="navbar-header">
+                                <div class="mobile-logo">
+                                    <a href="index.html">
+                                        <img src="assets/images/logos/logo.png" alt="DeltaOdds">
+                                    </a>
+                                </div>
+                                <button type="button" class="navbar-toggle" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                </button>
+                            </div>
+                            <div class="navbar-collapse collapse">
+                                <ul class="navigation clearfix">
+                                    <li><a class="nav-link-click" href="#home">Home</a></li>
+                                    <li><a class="nav-link-click" href="#features">Features</a></li>
+                                    <li><a class="nav-link-click" href="#api">API</a></li>
+                                    <li><a class="nav-link-click" href="#pricing">Pricing</a></li>
+                                    <li><a class="nav-link-click" href="#contact">Contact</a></li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="about-social text-center">
+                        <a href="#contact" class="theme-btn">Get Started</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- / END MENU DESIGN AREA -->
+    <!-- START MENU DESIGN AREA -->
+    <div id="smooth-wrapper">
+        <div id="smooth-content">
+            <main class="main-bg o-hidden">
+                <!-- START HEADER DESIGN AREA -->
+                <section id="home" class="main-hero-area">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-lg-12">
+                                <div class="hero-content wow fadeInUp delay-0-2s" style="text-align: center;">
+                                    <h1>Polymarket Orderbook Data</h1>
+                                    <h2>Historical orderbook snapshots for quantitative research, algorithmic trading, and market analysis. <br/>Real-time probability evolution data from the world's largest prediction market.</h2>
+                                    <div class="stats-grid">
+                                        <div class="stat-box">
+                                            <div class="stat-number">500M+</div>
+                                            <div class="stat-label">Data Points</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-number">99.9%</div>
+                                            <div class="stat-label">Uptime</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-number">25,000+</div>
+                                            <div class="stat-label">Markets Tracked</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-number">&lt;100ms</div>
+                                            <div class="stat-label">API Response</div>
+                                        </div>
+                                    </div>
+                                    <div class="hero-btns">
+                                        <a href="#api" class="theme-btn">View API Docs <i class="ri-code-line"></i></a>
+                                        <a href="#pricing" class="theme-btn" style="margin-left: 15px;">See Pricing <i class="ri-arrow-right-line"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- / END HEADER DESIGN AREA -->
+
+                <!-- START FEATURES DESIGN AREA -->
+                <section id="features" class="services-area">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12 text-center mb-5">
+                                <h2>Why DeltaOdds?</h2>
+                                <p>Built for researchers, quants, and institutional traders who demand precision and reliability</p>
+                            </div>
+                        </div>
+                        <div class="container-inner">
+                            <div class="row">
+                                <!-- START SINGLE SERVICE -->
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="service-item wow fadeInUp delay-0-2s">
+                                        <div class="content">
+                                            <i class="ri-database-2-line"></i>
+                                            <h4>Complete Historical Data</h4>
+                                            <p>Access full orderbook snapshots with bid/ask spreads, liquidity depth, and tick-by-tick changes. Perfect for backtesting trading strategies and understanding market microstructure.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- START SINGLE SERVICE -->
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="service-item wow fadeInUp delay-0-4s">
+                                        <div class="content">
+                                            <i class="ri-line-chart-line"></i>
+                                            <h4>Real-Time Probability Evolution</h4>
+                                            <p>Track how market-implied probabilities change over time. Analyze information flow, sentiment shifts, and price discovery in prediction markets.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- START SINGLE SERVICE -->
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="service-item wow fadeInUp delay-0-6s">
+                                        <div class="content">
+                                            <i class="ri-speed-line"></i>
+                                            <h4>High-Performance API</h4>
+                                            <p>Sub-100ms response times with 99.9% uptime SLA. RESTful API with JSON responses, built for high-frequency data access and analysis pipelines.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- START SINGLE SERVICE -->
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="service-item wow fadeInUp delay-0-2s">
+                                        <div class="content">
+                                            <i class="ri-shield-check-line"></i>
+                                            <h4>Enterprise-Grade Reliability</h4>
+                                            <p>Redundant data collection with automatic failover. No gaps in data coverage, ensuring your research and models have complete, accurate information.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- START SINGLE SERVICE -->
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="service-item wow fadeInUp delay-0-4s">
+                                        <div class="content">
+                                            <i class="ri-filter-3-line"></i>
+                                            <h4>Advanced Filtering</h4>
+                                            <p>Query by market, time range, outcome, or custom parameters. Flexible API design supports complex analytical workflows and custom integrations.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- START SINGLE SERVICE -->
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="service-item wow fadeInUp delay-0-6s">
+                                        <div class="content">
+                                            <i class="ri-download-cloud-line"></i>
+                                            <h4>Bulk Data Export</h4>
+                                            <p>Download complete datasets in CSV, JSON, or Parquet format. Ideal for training machine learning models or performing large-scale statistical analysis.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- / END FEATURES DESIGN AREA -->
+
+                <!-- START API DOCUMENTATION AREA -->
+                <section id="api" class="api-section-dark">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12 text-center mb-5">
+                                <h2>Simple, Powerful API</h2>
+                                <p>Get started in minutes with our intuitive REST API</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-8 offset-lg-2">
+                                <h3 style="margin-bottom: 20px;">Get Orderbook Data</h3>
+                                <p>Retrieve historical orderbook snapshots for any market</p>
+
+                                <div class="code-example">
+                                    <pre><span class="comment">// Fetch orderbook data for a specific market</span>
+<span class="keyword">const</span> <span class="function">getOrderbookData</span> = <span class="keyword">async</span> () => {
+  <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'https://api.deltaodds.io/v1/orderbook'</span>, {
+    <span class="keyword">method</span>: <span class="string">'GET'</span>,
+    <span class="keyword">headers</span>: {
+      <span class="string">'Authorization'</span>: <span class="string">'Bearer YOUR_API_KEY'</span>,
+      <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span>
+    },
+    <span class="keyword">params</span>: {
+      <span class="keyword">market_id</span>: <span class="string">'0x1234...'</span>,
+      <span class="keyword">start_time</span>: <span class="string">'2024-01-01T00:00:00Z'</span>,
+      <span class="keyword">end_time</span>: <span class="string">'2024-01-31T23:59:59Z'</span>,
+      <span class="keyword">interval</span>: <span class="string">'1m'</span> <span class="comment">// 1 minute snapshots</span>
+    }
+  });
+
+  <span class="keyword">const</span> data = <span class="keyword">await</span> response.<span class="function">json</span>();
+  <span class="keyword">return</span> data;
+};
+
+<span class="comment">// Response format</span>
+{
+  <span class="string">"market_id"</span>: <span class="string">"0x1234..."</span>,
+  <span class="string">"snapshots"</span>: [
+    {
+      <span class="string">"timestamp"</span>: <span class="number">1704067200000</span>,
+      <span class="string">"bids"</span>: [
+        { <span class="string">"price"</span>: <span class="number">0.52</span>, <span class="string">"size"</span>: <span class="number">1000</span> },
+        { <span class="string">"price"</span>: <span class="number">0.51</span>, <span class="string">"size"</span>: <span class="number">2500</span> }
+      ],
+      <span class="string">"asks"</span>: [
+        { <span class="string">"price"</span>: <span class="number">0.53</span>, <span class="string">"size"</span>: <span class="number">1200</span> },
+        { <span class="string">"price"</span>: <span class="number">0.54</span>, <span class="string">"size"</span>: <span class="number">1800</span> }
+      ],
+      <span class="string">"spread"</span>: <span class="number">0.01</span>,
+      <span class="string">"mid_price"</span>: <span class="number">0.525</span>
+    }
+  ]
+}</pre>
+                                </div>
+
+                                <h3 style="margin: 40px 0 20px 0;">Python Example</h3>
+                                <p>Perfect for data science and quantitative research workflows</p>
+
+                                <div class="code-example">
+                                    <pre><span class="keyword">import</span> requests
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+
+<span class="comment"># Fetch orderbook data</span>
+<span class="keyword">def</span> <span class="function">get_orderbook_data</span>(market_id, start_time, end_time):
+    url = <span class="string">'https://api.deltaodds.io/v1/orderbook'</span>
+    headers = {
+        <span class="string">'Authorization'</span>: <span class="string">'Bearer YOUR_API_KEY'</span>,
+        <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span>
+    }
+    params = {
+        <span class="string">'market_id'</span>: market_id,
+        <span class="string">'start_time'</span>: start_time,
+        <span class="string">'end_time'</span>: end_time,
+        <span class="string">'interval'</span>: <span class="string">'5m'</span>
+    }
+
+    response = requests.<span class="function">get</span>(url, headers=headers, params=params)
+    data = response.<span class="function">json</span>()
+
+    <span class="comment"># Convert to DataFrame for analysis</span>
+    df = pd.DataFrame(data[<span class="string">'snapshots'</span>])
+    <span class="keyword">return</span> df
+
+<span class="comment"># Analyze probability changes over time</span>
+df = <span class="function">get_orderbook_data</span>(<span class="string">'0x1234...'</span>, <span class="string">'2024-01-01'</span>, <span class="string">'2024-01-31'</span>)
+df[<span class="string">'probability'</span>] = df[<span class="string">'mid_price'</span>]
+df[<span class="string">'probability_change'</span>] = df[<span class="string">'probability'</span>].<span class="function">diff</span>()</pre>
+                                </div>
+
+                                <div class="endpoints-box">
+                                    <h4>Available Endpoints</h4>
+                                    <ul>
+                                        <li><strong>GET /v1/orderbook</strong> - Retrieve orderbook snapshots</li>
+                                        <li><strong>GET /v1/markets</strong> - List all available markets</li>
+                                        <li><strong>GET /v1/events</strong> - Get event metadata and status</li>
+                                        <li><strong>GET /v1/outcomes</strong> - Query market outcomes and results</li>
+                                        <li><strong>POST /v1/export</strong> - Request bulk data export</li>
+                                    </ul>
+                                    <div style="margin-top: 30px;">
+                                        <a href="#contact" class="theme-btn">Get API Key <i class="ri-key-line"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- / END API DOCUMENTATION AREA -->
+
+                <!-- START PRICING DESIGN AREA -->
+                <section id="pricing" style="padding: 100px 0;">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12 text-center mb-5">
+                                <h2>Flexible Pricing Plans</h2>
+                                <p>Choose the plan that fits your needs. All plans include full API access and documentation.</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!-- FREE TIER -->
+                            <div class="col-lg-4">
+                                <div class="pricing-card">
+                                    <h3>Free</h3>
+                                    <div class="price">$0<span class="price-period">/month</span></div>
+                                    <p>Perfect for testing and small-scale research</p>
+                                    <ul class="feature-list">
+                                        <li><i class="ri-check-line"></i> 2 weeks of historical data</li>
+                                        <li><i class="ri-check-line"></i> 200 API calls/day</li>
+                                        <li><i class="ri-check-line"></i> Up to 10 markets</li>
+                                        <li><i class="ri-close-line" style="color: #ccc;"></i> Real-time data access</li>
+                                        <li><i class="ri-close-line" style="color: #ccc;"></i> Bulk data exports</li>
+                                        <li>&nbsp;</li>
+                                    </ul>
+                                    <a href="#contact" class="theme-btn" style="width: 100%; text-align: center; margin-top: 20px;">Get Started</a>
+                                </div>
+                            </div>
+                            <!-- PROFESSIONAL TIER -->
+                            <div class="col-lg-4">
+                                <div class="pricing-card featured">
+                                    <span class="pricing-badge">Most Popular</span>
+                                    <h3>Professional</h3>
+                                    <div class="price">$299<span class="price-period">/month</span></div>
+                                    <p>For professional traders & research teams</p>
+                                    <ul class="feature-list">
+                                        <li><i class="ri-check-line"></i> 3 months of historical data</li>
+                                        <li><i class="ri-check-line"></i> 10,000 calls/day</li>
+                                        <li><i class="ri-check-line"></i> Unlimited markets</li>
+                                        <li><i class="ri-check-line"></i> Real-time data access</li>
+                                        <li><i class="ri-check-line"></i> Unlimited markets</li>
+                                        <li><i class="ri-check-line"></i> Priority chat support</li>
+                                    </ul>
+                                    <a href="#contact" class="theme-btn" style="width: 100%; text-align: center; margin-top: 20px;">Get Started</a>
+                                </div>
+                            </div>
+                            <!-- ENTERPRISE TIER -->
+                            <div class="col-lg-4">
+                                <div class="pricing-card">
+                                    <h3>Enterprise</h3>
+                                    <div class="price">$999<span class="price-period">/month</span></div>
+                                    <p>Institutional use & high-volume users</p>
+                                    <ul class="feature-list">
+                                        <li><i class="ri-check-line"></i> Full historical data archive</li>
+                                        <li><i class="ri-check-line"></i> Unlimited API calls/day</li>
+                                        <li><i class="ri-check-line"></i> Unlimited markets</li>
+                                        <li><i class="ri-check-line"></i> Real-time data access</li>
+                                        <li><i class="ri-check-line"></i> Unlimited markets</li>
+                                        <li><i class="ri-check-line"></i> Priority chat support</li>
+                                    </ul>
+                                    <a href="#contact" class="theme-btn" style="width: 100%; text-align: center; margin-top: 20px;">Contact Sales</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 50px;">
+                            <div class="col-lg-12 text-center">
+                                <p style="color: #666;">All plans include full documentation, API support, and regular updates. Annual billing available with 20% discount.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- / END PRICING DESIGN AREA -->
+
+                <!-- START CALL TO ACTION DESIGN AREA -->
+                <section id="contact" class="call-to-action-area">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="call-to-action-part wow fadeInUp delay-0-2s text-center">
+                                    <h2>Ready to Access Premium Market Data?</h2>
+                                    <p>Join leading quant firms, researchers, and traders using DeltaOdds to power their prediction market strategies. Start with our free tier or contact us for enterprise solutions.</p>
+                                    <div class="hero-btns">
+                                        <a href="mailto:contact@deltaodds.io" class="theme-btn call-to-action-button">Contact Us <i class="ri-mail-line"></i></a>
+                                        <a href="#api" class="theme-btn" style="margin-left: 15px; background: transparent; color: #fff; border: 2px solid #4a9eff;">View Documentation <i class="ri-book-line"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!--  // END CALL TO ACTION DESIGN AREA -->
+
+                <!-- START FOOTER DESIGN AREA -->
+                <footer class="main-footer">
+                    <div class="footer-bottom pt-50 pb-40">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="copyright-text">
+                                        <p>&copy; 2024 DeltaOdds. All Rights Reserved.</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 text-end">
+                                    <div class="footer-links">
+                                        <a href="#" style="margin: 0 15px; color: #666;">Terms of Service</a>
+                                        <a href="#" style="margin: 0 15px; color: #666;">Privacy Policy</a>
+                                        <a href="mailto:contact@deltaodds.io" style="margin: 0 15px; color: #666;">Contact</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+    <!-- / END FOOTER DESIGN AREA -->
+    <!-- START SCROLL UP DESIGN AREA -->
+    <div class="progress-wrap cursor-pointer">
+        <i class="ri-arrow-up-s-line"></i>
+        <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+            <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
+        </svg>
+    </div>
+    <!-- / END SCROLL UP DESIGN AREA -->
+    <!-- JQUERY JS -->
+    <script src="assets/js/jquery-3.6.0.min.js"></script>
+    <!-- BOOTSTRAP JS-->
+    <script src="assets/js/bootstrap.min.js"></script>
+    <!-- APPEAR JS -->
+    <script src="assets/js/appear.min.js"></script>
+    <!-- MAGNIFICANT JS -->
+    <script src="assets/js/jquery.magnific-popup.min.js"></script>
+    <!-- SLICK JS-->
+    <script src="assets/js/slick.min.js"></script>
+    <!-- GSAP AND LOCOMOTIV JS-->
+    <script src="assets/js/gsap.min.js"></script>
+    <script src="assets/js/ScrollSmoother.min.js"></script>
+    <script src="assets/js/ScrollTrigger.min.js"></script>
+    <script src="assets/js/smoother-script.js"></script>
+    <!-- NICE SELECT JS-->
+    <script src="assets/js/jquery.nice-select.min.js"></script>
+    <!-- IMAGE LOADER JS-->
+    <script src="assets/js/imagesloaded.pkgd.min.js"></script>
+    <!-- ISOTOPE JS-->
+    <script src="assets/js/isotope.pkgd.min.js"></script>
+    <!--  WOW ANIMATION JS-->
+    <script src="assets/js/wow.min.js"></script>
+    <!-- SCRIPT JS-->
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>
