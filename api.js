@@ -20,15 +20,15 @@ const PORT = process.env.PORT || 3000;
  * Put them into env vars instead (see guide below).
  */
 const pool = new Pool({
-  host: "db-postgresql-fra1-84766-do-user-18303515-0.i.db.ondigitalocean.com",
-  port: "25060",
-  database: "defaultdb", // match your polymarket-books.js
-  user: "doadmin",
-  password: "AVNS_ynKv1cU7sEhERx75OLZ",
-  max: 20, // connection pool size
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || '5432', 10),
+  database: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  max: parseInt(process.env.DB_POOL_SIZE || '20', 10),
   idleTimeoutMillis: 30000,
-  ssl: {
-    rejectUnauthorized: false, // sslmode=require
+  ssl: process.env.DB_SSL === 'false' ? false : {
+    rejectUnauthorized: false,
   },
 });
 
