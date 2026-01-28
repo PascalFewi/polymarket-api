@@ -16,11 +16,13 @@
     "dev:orderbook": "DEBUG=true node src/workers/orderbook-collector.js"
   },
   "dependencies": {
+    "cors": "^2.8.6",
     "dotenv": "^16.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
     "pg": "^8.11.3",
     "ws": "^8.14.2"
   },
-  "devDependencies": {},
   "keywords": [
     "polymarket",
     "orderbook",
