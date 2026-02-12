@@ -104,6 +104,16 @@ function parseFloatOr(defaultValue, value, min = -Infinity, max = Infinity) {
   return Math.min(Math.max(n, min), max);
 }
 
+function parseOutcomeIndex(value) {
+  if (value === undefined || value === null) return null;
+  const raw = String(value).trim().toLowerCase();
+  if (raw === "yes") return 0;
+  if (raw === "no") return 1;
+  const n = parseInt(raw, 10);
+  if (Number.isNaN(n)) return null;
+  return n;
+}
+
 function formatBytes(bytes) {
   if (!bytes) return "0 B";
   const k = 1024;
@@ -634,6 +644,11 @@ app.get(
     const { market_id, asset_id, outcome } = req.query;
     const limit = parseIntOr(100, req.query.limit, 1, 1000);
 
+    const outcomeIndex = parseOutcomeIndex(outcome);
+    if (outcome !== undefined && outcomeIndex === null) {
+      return res.status(400).json({ error: "Invalid outcome. Use yes/no or 0/1." });
+    }
+
     const fromTs = req.query.from ? parseInt(req.query.from, 10) : null;
     const toTs = req.query.to ? parseInt(req.query.to, 10) : null;
 
@@ -651,9 +666,9 @@ app.get(
       conditions.push(`asset_id = $${idx++}`);
       values.push(String(asset_id));
     }
-    if (outcome) {
-      conditions.push(`outcome = $${idx++}`);
-      values.push(String(outcome));
+    if (outcomeIndex !== null) {
+      conditions.push(`outcome_index = $${idx++}`);
+      values.push(outcomeIndex);
     }
 
     if (!conditions.length) {
@@ -712,6 +727,11 @@ app.get(
   asyncHandler(async (req, res) => {
     const { market_id, asset_id, outcome } = req.query;
 
+    const outcomeIndex = parseOutcomeIndex(outcome);
+    if (outcome !== undefined && outcomeIndex === null) {
+      return res.status(400).json({ error: "Invalid outcome. Use yes/no or 0/1." });
+    }
+
     const conditions = [];
     const values = [];
     let idx = 1;
@@ -724,9 +744,9 @@ app.get(
       conditions.push(`asset_id = $${idx++}`);
       values.push(String(asset_id));
     }
-    if (outcome) {
-      conditions.push(`outcome = $${idx++}`);
-      values.push(String(outcome));
+    if (outcomeIndex !== null) {
+      conditions.push(`outcome_index = $${idx++}`);
+      values.push(outcomeIndex);
     }
 
     if (!conditions.length) {
@@ -769,6 +789,11 @@ app.get(
     const { outcome } = req.query;
     const limit = parseIntOr(100, req.query.limit, 1, 1000);
 
+    const outcomeIndex = parseOutcomeIndex(outcome);
+    if (outcome !== undefined && outcomeIndex === null) {
+      return res.status(400).json({ error: "Invalid outcome. Use yes/no or 0/1." });
+    }
+
     const fromTs = req.query.from ? parseInt(req.query.from, 10) : null;
     const toTs = req.query.to ? parseInt(req.query.to, 10) : null;
     const cursorTs = req.query.cursor_ts ? parseInt(req.query.cursor_ts, 10) : null;
@@ -777,9 +802,9 @@ app.get(
     const values = [String(market_id)];
     let idx = 2;
 
-    if (outcome) {
-      conditions.push(`outcome = $${idx++}`);
-      values.push(String(outcome));
+    if (outcomeIndex !== null) {
+      conditions.push(`outcome_index = $${idx++}`);
+      values.push(outcomeIndex);
     }
     if (fromTs !== null && !Number.isNaN(fromTs)) {
       conditions.push(`ts >= $${idx++}`);
