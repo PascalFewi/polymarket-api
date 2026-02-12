@@ -58,11 +58,7 @@ pool.on("connect", async (client) => {
 app.use(cors());
 app.use(express.json());
 
-// If you're behind a proxy / load balancer, enable trust proxy so rate limiting by IP works.
-// Set TRUST_PROXY=1 in .env for DO / nginx / etc.
-if (process.env.TRUST_PROXY) {
-  app.set("trust proxy", Number(process.env.TRUST_PROXY) || 1);
-}
+app.set("trust proxy", 1);
 
 /**
  * =========================
@@ -695,9 +691,10 @@ app.get(
     values.push(limit);
     const limitPos = values.length;
 
+    const stmtName = `ob_filtered_${conditions.length}`;
     const { rows } = await q({
-      name: "orderbooks_filtered_cursor_v2",
-      text: `
+  	name: stmtName,
+      	text: `
         SELECT ts, asset_id, market_id,
                outcome_index, bids, asks
         FROM orderbooks
@@ -822,9 +819,10 @@ app.get(
     values.push(limit);
     const limitPos = values.length;
 
+    const stmtName = `ob_market_${conditions.length}`;
     const { rows } = await q({
-      name: "orderbooks_by_market_cursor_v2",
-      text: `
+        name: stmtName,
+        text: `
         SELECT ts, asset_id, market_id,
                outcome_index, bids, asks
         FROM orderbooks
