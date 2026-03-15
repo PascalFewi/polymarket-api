@@ -1,179 +1,40 @@
-# Polymarket API Documentation
+# poly-data API
 
-A REST API for accessing Polymarket prediction market data including events, markets, and orderbook snapshots.
+REST API for historical Polymarket data — events, markets, outcomes, and orderbook snapshots.
 
-**Base URL:** `https://your-api-domain.com`
-
----
-
-## Quick Start Walkthrough
-
-Here's a complete workflow to find an event, explore its markets, and fetch orderbook data:
-
-### Step 1: Search for an Event
-
-Find events related to "election":
-
-```bash
-curl "https://your-api-domain.com/events/search?q=election&limit=5"
-```
-
-Response:
-```json
-{
-  "q": "election",
-  "filters": { "active": null, "closed": null, "archived": null },
-  "limit": 5,
-  "count": 5,
-  "next": { "cursor_end_date": 1735689600000, "cursor_id": 12345 },
-  "data": [
-    {
-      "id": 101,
-      "title": "2024 Presidential Election",
-      "slug": "2024-presidential-election",
-      "volume": 15000000,
-      "market_ids": ["5001", "5002", "5003"],
-      "market_count": 3
-    }
-  ]
-}
-```
-
-### Step 2: Get Markets for the Event
-
-Fetch all markets associated with event ID `101`:
-
-```bash
-curl "https://your-api-domain.com/events/101/markets"
-```
-
-Response:
-```json
-{
-  "event_id": "101",
-  "limit": 100,
-  "data": [
-    {
-      "id": 5001,
-      "event_id": 101,
-      "question": "Will candidate A win?",
-      "volume_24h": 250000,
-      "liquidity": 500000,
-      "active": true,
-      "closed": false
-    },
-    {
-      "id": 5002,
-      "event_id": 101,
-      "question": "Will candidate B win?",
-      "volume_24h": 180000,
-      "liquidity": 420000,
-      "active": true,
-      "closed": false
-    }
-  ],
-  "next": null
-}
-```
-
-### Step 3: Get Market Details with Outcomes
-
-Fetch market `5001` to see its token IDs:
-
-```bash
-curl "https://your-api-domain.com/markets/5001"
-```
-
-Response:
-```json
-{
-  "id": 5001,
-  "event_id": 101,
-  "question": "Will candidate A win?",
-  "outcomes": [
-    { "id": 1, "outcome_index": 0, "outcome": "Yes", "token_id": "abc123..." },
-    { "id": 2, "outcome_index": 1, "outcome": "No", "token_id": "def456..." }
-  ]
-}
-```
-
-### Step 4: Get Latest Orderbook
-
-Fetch the most recent orderbook snapshot for market `5001`:
-
-```bash
-curl "https://your-api-domain.com/orderbooks/latest?market_id=5001"
-```
-
-Response:
-```json
-{
-  "ts": 1706000000000,
-  "asset_id": "abc123...",
-  "market_id": "5001",
-  "outcome_index": 0,
-  "bids": [[0.55, 1000], [0.54, 2500], [0.53, 5000]],
-  "asks": [[0.56, 800], [0.57, 1500], [0.58, 3000]]
-}
-```
+**Base URL:** `http://api.poly-data.xyz`
 
 ---
 
 ## Rate Limits
 
-| Scope | Limit | Window |
-|-------|-------|--------|
-| **Global (all endpoints)** | 60 requests | 1 minute |
-| **Orderbooks endpoints** | 30 requests | 1 minute |
-
-Rate limit headers are included in responses:
-- `RateLimit-Limit` – Maximum requests allowed
-- `RateLimit-Remaining` – Requests remaining in current window
-- `RateLimit-Reset` – Time when the rate limit resets
-
-When rate limited, you'll receive a `429 Too Many Requests` response.
+| Scope | Limit |
+|---|---|
+| Global | 60 req/min per IP |
+| `/orderbooks` | 30 req/min per IP |
 
 ---
 
 ## Pagination
 
-The API supports two pagination methods:
+Most list endpoints support two pagination modes:
 
-### Cursor-based (Recommended)
-Use the `next` object returned in responses. Pass the cursor values to fetch the next page:
+- **Cursor-based** (default, recommended): pass `cursor_id` / `cursor_ts` / `cursor_end_date` from the `next` field of the previous response.
+- **Offset-based**: pass `offset=<n>` explicitly.
 
-```bash
-# First request
-curl "https://your-api-domain.com/events?limit=50"
-
-# Next page (using cursor from response)
-curl "https://your-api-domain.com/events?limit=50&cursor_end_date=1735689600000&cursor_id=12345"
-```
-
-### Offset-based
-Traditional offset pagination (less efficient for large datasets):
-
-```bash
-curl "https://your-api-domain.com/events?limit=50&offset=100"
-```
+When a `next` field is `null`, you've reached the end of the results.
 
 ---
 
 ## Endpoints
 
-### Health Check
+### Health
 
 #### `GET /health`
+Returns server status.
 
-Check API status.
-
-```bash
-curl "https://your-api-domain.com/health"
-```
-
-Response:
 ```json
-{ "status": "ok", "time": "2024-01-23T12:00:00.000Z" }
+{ "status": "ok", "time": "2025-01-01T00:00:00.000Z" }
 ```
 
 ---
@@ -181,132 +42,75 @@ Response:
 ### Events
 
 #### `GET /events`
+List all events, ordered by `end_date`.
 
-List all events, ordered by end date.
-
-**Query Parameters:**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `limit` | integer | 50 | Results per page (1-500) |
-| `offset` | integer | — | Offset for pagination |
-| `cursor_end_date` | integer | — | Unix timestamp (ms) from previous response |
-| `cursor_id` | integer | — | Event ID from previous response |
-
-```bash
-# Get first 20 events
-curl "https://your-api-domain.com/events?limit=20"
-
-# Get next page using cursor
-curl "https://your-api-domain.com/events?limit=20&cursor_end_date=1735689600000&cursor_id=500"
-```
+| Param | Type | Default | Description |
+|---|---|---|---|
+| `limit` | int | 50 | Max 500 |
+| `offset` | int | — | Enables offset mode |
+| `cursor_end_date` | int | — | Unix ms, from `next` |
+| `cursor_id` | int | — | From `next` |
 
 ---
 
 #### `GET /events/search`
+Full-text search across event title, slug, and description.
 
-Search events by text query.
+| Param | Type | Required | Description |
+|---|---|---|---|
+| `q` | string | ✅ | Search query |
+| `limit` | int | — | Default 50, max 500 |
+| `active` | bool | — | Filter by active status |
+| `closed` | bool | — | Filter by closed status |
+| `archived` | bool | — | Filter by archived status |
+| `cursor_end_date` | int | — | Unix ms, from `next` |
+| `cursor_id` | int | — | From `next` |
 
-**Query Parameters:**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `q` | string | **required** | Search query |
-| `limit` | integer | 50 | Results per page (1-500) |
-| `active` | boolean | — | Filter by active status |
-| `closed` | boolean | — | Filter by closed status |
-| `archived` | boolean | — | Filter by archived status |
-| `cursor_end_date` | integer | — | Cursor for pagination |
-| `cursor_id` | integer | — | Cursor for pagination |
-
-```bash
-# Search for crypto events
-curl "https://your-api-domain.com/events/search?q=bitcoin"
-
-# Search active sports events only
-curl "https://your-api-domain.com/events/search?q=superbowl&active=true&closed=false"
-```
-
-Response includes `market_ids` and `market_count` for each event.
+Response also includes `market_ids[]` and `market_count` per event.
 
 ---
 
 #### `GET /events/:id`
-
 Get a single event by ID.
-
-```bash
-curl "https://your-api-domain.com/events/101"
-```
 
 ---
 
 #### `GET /events/:id/markets`
+List all markets belonging to an event.
 
-Get all markets belonging to an event.
-
-**Query Parameters:**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `limit` | integer | 100 | Results per page (1-1000) |
-| `offset` | integer | — | Offset for pagination |
-| `cursor_id` | integer | — | Market ID cursor for pagination |
-
-```bash
-curl "https://your-api-domain.com/events/101/markets?limit=50"
-```
+| Param | Type | Default | Description |
+|---|---|---|---|
+| `limit` | int | 100 | Max 1000 |
+| `offset` | int | — | Enables offset mode |
+| `cursor_id` | int | — | From `next` |
 
 ---
 
 ### Markets
 
 #### `GET /markets`
+List markets, ordered by `volume_24h` descending.
 
-List all markets, ordered by 24h volume (descending).
-
-**Query Parameters:**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `limit` | integer | 50 | Results per page (1-500) |
-| `min24hVolume` | number | 0 | Minimum 24h volume filter |
-| `offset` | integer | — | Offset for pagination |
-| `cursor_volume` | number | — | Volume cursor for pagination |
-| `cursor_id` | integer | — | Market ID cursor for pagination |
-
-```bash
-# Get top markets by volume
-curl "https://your-api-domain.com/markets?limit=10"
-
-# Get markets with at least $10,000 daily volume
-curl "https://your-api-domain.com/markets?min24hVolume=10000"
-```
+| Param | Type | Default | Description |
+|---|---|---|---|
+| `limit` | int | 50 | Max 500 |
+| `min24hVolume` | float | 0 | Minimum 24h volume filter |
+| `offset` | int | — | Enables offset mode |
+| `cursor_volume` | float | — | From `next` |
+| `cursor_id` | int | — | From `next` |
 
 ---
 
 #### `GET /markets/:id`
+Get a single market by ID, with its outcomes embedded.
 
-Get a single market with its outcomes/tokens.
-
-```bash
-curl "https://your-api-domain.com/markets/5001"
-```
-
-Response:
 ```json
 {
-  "id": 5001,
-  "event_id": 101,
-  "question": "Will candidate A win?",
-  "active": true,
-  "closed": false,
-  "volume_24h": 250000,
-  "volume_total": 5000000,
-  "liquidity": 500000,
+  "id": 123,
+  "question": "...",
   "outcomes": [
-    { "id": 1, "outcome_index": 0, "outcome": "Yes", "token_id": "abc123..." },
-    { "id": 2, "outcome_index": 1, "outcome": "No", "token_id": "def456..." }
+    { "id": 1, "outcome_index": 0, "outcome": "Yes", "token_id": "..." },
+    { "id": 2, "outcome_index": 1, "outcome": "No",  "token_id": "..." }
   ]
 }
 ```
@@ -315,124 +119,86 @@ Response:
 
 ### Orderbooks
 
-Orderbook endpoints have stricter rate limits (30/min). Each snapshot contains bid/ask arrays as `[price, size]` tuples.
+Orderbook snapshots are stored as timestamped `bids` / `asks` arrays per outcome.
 
 #### `GET /orderbooks`
+Query snapshots with flexible filters. **At least one of `market_id` or `asset_id` is required.**
 
-Query orderbook snapshots with filters.
-
-**Query Parameters:**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `market_id` | string | — | Filter by market ID |
-| `asset_id` | string | — | Filter by asset/token ID |
-| `outcome` | string | — | Filter by outcome name |
-| `from` | integer | — | Start timestamp (ms) |
-| `to` | integer | — | End timestamp (ms) |
-| `limit` | integer | 100 | Results per page (1-1000) |
-| `cursor_ts` | integer | — | Timestamp cursor for pagination |
-
-**Note:** At least one of `market_id` or `asset_id` is required.
-
-```bash
-# Get orderbook history for a market
-curl "https://your-api-domain.com/orderbooks?market_id=5001&limit=50"
-
-# Get orderbooks in a time range
-curl "https://your-api-domain.com/orderbooks?market_id=5001&from=1705900000000&to=1706000000000"
-```
+| Param | Type | Description |
+|---|---|---|
+| `market_id` | string | Filter by market |
+| `asset_id` | string | Filter by asset/token |
+| `outcome` | string | `yes` / `no` / `0` / `1` |
+| `from` | int | Unix ms lower bound on `ts` |
+| `to` | int | Unix ms upper bound on `ts` |
+| `limit` | int | Default 100, max 1000 |
+| `cursor_ts` | int | From `next`, paginates backwards in time |
 
 ---
 
 #### `GET /orderbooks/latest`
-
-Get the most recent orderbook snapshot for a market or asset.
-
-**Query Parameters:**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `market_id` | string | — | Filter by market ID |
-| `asset_id` | string | — | Filter by asset/token ID |
-| `outcome` | string | — | Filter by outcome name |
-
-**Note:** At least one filter is required.
-
-```bash
-# Get latest orderbook for a market
-curl "https://your-api-domain.com/orderbooks/latest?market_id=5001"
-
-# Get latest orderbook for a specific token
-curl "https://your-api-domain.com/orderbooks/latest?asset_id=abc123..."
-```
+Get the single most recent snapshot matching the given filters. Same filter params as above (at least one required). Returns `404` if nothing is found.
 
 ---
 
 #### `GET /orderbooks/:market_id`
+Shorthand to query snapshots for a specific market.
 
-Get orderbook snapshots for a specific market (convenience endpoint).
-
-**Query Parameters:**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `outcome` | string | — | Filter by outcome name |
-| `from` | integer | — | Start timestamp (ms) |
-| `to` | integer | — | End timestamp (ms) |
-| `limit` | integer | 100 | Results per page (1-1000) |
-| `cursor_ts` | integer | — | Timestamp cursor for pagination |
-
-```bash
-curl "https://your-api-domain.com/orderbooks/5001?limit=100"
-```
+| Param | Type | Description |
+|---|---|---|
+| `outcome` | string | `yes` / `no` / `0` / `1` |
+| `from` | int | Unix ms lower bound |
+| `to` | int | Unix ms upper bound |
+| `limit` | int | Default 100, max 1000 |
+| `cursor_ts` | int | From `next` |
 
 ---
 
-### Statistics
+### Stats
 
 #### `GET /stats/db-size`
+Returns database and per-table size information.
 
-Get database size statistics.
-
-```bash
-curl "https://your-api-domain.com/stats/db-size"
-```
-
-Response:
 ```json
 {
-  "database": "defaultdb",
-  "size_bytes": 5368709120,
-  "size_pretty": "5.00 GB",
+  "database": "polymarket",
+  "size_bytes": 12345678,
+  "size_pretty": "11.77 MB",
   "tables": [
-    { "table": "orderbooks", "size_bytes": 4294967296, "size_pretty": "4.00 GB" },
-    { "table": "markets", "size_bytes": 536870912, "size_pretty": "512.00 MB" },
-    { "table": "events", "size_bytes": 268435456, "size_pretty": "256.00 MB" },
-    { "table": "outcomes", "size_bytes": 134217728, "size_pretty": "128.00 MB" }
+    { "table": "orderbooks", "size_bytes": 9876543, "size_pretty": "9.42 MB" },
+    ...
   ]
 }
 ```
 
 ---
 
-## Error Responses
+## Example Requests
 
-All errors follow this format:
+```bash
+# Search for active US election markets
+curl "http://api.poly-data.xyz/events/search?q=election&active=true"
 
-```json
-{ "error": "Error message description" }
+# Get a market with its outcomes
+curl "http://api.poly-data.xyz/markets/12345"
+
+# Fetch the latest orderbook snapshot for a market
+curl "http://api.poly-data.xyz/orderbooks/latest?market_id=12345&outcome=yes"
+
+# Page through orderbook history
+curl "http://api.poly-data.xyz/orderbooks/12345?limit=200&from=1700000000000&to=1710000000000"
+
+# Next page using cursor from previous response
+curl "http://api.poly-data.xyz/orderbooks/12345?limit=200&cursor_ts=1705000000000"
 ```
-
-| Status Code | Description |
-|-------------|-------------|
-| `400` | Bad request (missing required parameters) |
-| `404` | Resource not found |
-| `429` | Rate limit exceeded |
-| `500` | Internal server error |
 
 ---
 
-## Response Caching
+## Data Model
 
-Responses are cached briefly (2-5 seconds) to improve performance. For real-time data, the `/orderbooks/latest` endpoint has a 500ms cache TTL.
+| Table | Description |
+|---|---|
+| `events` | Top-level prediction market events |
+| `markets` | Individual binary markets within an event |
+| `outcomes` | Yes/No outcome tokens per market |
+| `orderbooks` | Time-series snapshots of bids/asks per outcome |
